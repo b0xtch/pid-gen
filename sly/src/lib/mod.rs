@@ -1,4 +1,3 @@
-pub mod candid;
 pub mod command;
 pub mod dfx;
 pub mod env;

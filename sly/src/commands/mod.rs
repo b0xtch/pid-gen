@@ -2,14 +2,9 @@ use anyhow::Result;
 use clap::Parser as Clap;
 use std::path::PathBuf;
 
-use crate::lib::command::{AsyncCommand, Command};
-use crate::lib::env::Env;
+use crate::lib::{env::Env, command::Command};
 
-mod build;
-mod identity;
-mod new;
 mod principal;
-mod replica;
 
 /// Psychedelic's CLI for the Internet Computer.
 #[derive(Clap)]
@@ -34,14 +29,7 @@ pub struct App {
 
 #[derive(Clap)]
 pub enum AppSubCommands {
-    /// Set of commands to manage the identities used by this program.
-    #[clap(subcommand)]
-    Identity(identity::IdentitySubCommands),
-    /// Set of commands to manage the local replica and run management methods.
-    #[clap(subcommand)]
-    Replica(replica::ReplicaSubCommands),
-    /// Create a new project.
-    New(new::NewOpts),
+
     /// Search for a given principal id.
     PrincipalGen(principal::PrincipalOpts),
 }
@@ -49,9 +37,6 @@ pub enum AppSubCommands {
 impl Command for AppSubCommands {
     fn exec(self, env: &mut Env) -> Result<()> {
         match self {
-            AppSubCommands::Identity(sub) => sub.exec(env),
-            AppSubCommands::Replica(sub) => sub.exec(env),
-            AppSubCommands::New(opts) => opts.exec(env),
             AppSubCommands::PrincipalGen(opts) => opts.exec(env),
         }
     }
