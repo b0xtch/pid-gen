@@ -23,67 +23,6 @@ pub struct Canister {
     pub candid: BTreeMap<String, String>,
 }
 
-impl Workspace {
-    pub fn from_current_directory() -> anyhow::Result<Self> {
-        let cwd = env::current_dir().context("Failed to retrieve current working directory.")?;
-        let mut dir = Some(cwd.as_path());
-
-        while let Some(root) = dir {
-            let path = root.join("sly.json");
-
-            if path.is_file() {
-                let reader = std::fs::File::open(path.clone())
-                    .with_context(|| format!("Failed to open file '{}'", path.to_string_lossy()))?;
-
-                return Self::from_reader(root.into(), reader);
-            }
-
-            dir = root.parent();
-        }
-
-        bail!("No sly.json found in the current path.")
-    }
-
-    pub fn from_config_path(path: PathBuf) -> anyhow::Result<Self> {
-        if !path.is_file() {
-            bail!("'{}' is not a file.", path.to_string_lossy())
-        }
-
-        let root = path.parent().unwrap().into();
-        let reader = std::fs::File::open(path.clone())
-            .with_context(|| format!("Failed to open file '{}'", path.to_string_lossy()))?;
-
-        Self::from_reader(root, reader)
-    }
-
-    /// Create a workspace from a Sly.json that is located in the given `root` directory.
-    pub fn from_reader<R>(root: PathBuf, reader: R) -> anyhow::Result<Self>
-    where
-        R: std::io::Read,
-    {
-        let manifest = serde_json::from_reader::<_, manifest::Manifest>(reader)
-            .context("Could not parse the workspace manifest file.")?;
-
-        let canisters = manifest
-            .canisters
-            .unwrap_or_default()
-            .into_iter()
-            .map(|(k, v)| (k, v.into()))
-            .collect();
-
-        Ok(Self { root, canisters })
-    }
-
-    /// Return the settings for a canister.
-    pub fn get_canister<Q>(&self, name: &Q) -> Option<&Canister>
-    where
-        String: Borrow<Q>,
-        Q: Ord,
-    {
-        self.canisters.get(name)
-    }
-}
-
 mod manifest {
     use super::*;
 

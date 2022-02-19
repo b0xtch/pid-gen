@@ -117,27 +117,6 @@ impl Env {
         Ok(agent)
     }
 
-    /// Return the workspace information by parsing the sly.json file
-    /// in the current directory or one of the parents.
-    pub fn workspace(&self) -> anyhow::Result<Workspace> {
-        let lock = self.workspace.lock().unwrap();
-        let mut workspace = lock.borrow_mut();
-
-        if workspace.is_some() {
-            return Ok(workspace.as_ref().unwrap().clone());
-        }
-
-        let w = if let Some(path) = &self.config_path {
-            Workspace::from_config_path(path.clone())
-        } else {
-            Workspace::from_current_directory()
-        }
-        .context("Loading sly.json failed.")?;
-
-        *workspace = Some(w.clone());
-        Ok(w)
-    }
-
     pub fn network(&self) -> String {
         match self.network.as_str() {
             "ic" => "ic".to_string(),
