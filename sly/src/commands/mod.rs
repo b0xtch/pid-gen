@@ -6,12 +6,7 @@ use crate::lib::command::{AsyncCommand, Command};
 use crate::lib::env::Env;
 
 mod build;
-mod call;
-mod candid;
-mod create_canister;
-mod deploy;
 mod identity;
-mod install_code;
 mod new;
 mod principal;
 mod replica;
@@ -39,9 +34,6 @@ pub struct App {
 
 #[derive(Clap)]
 pub enum AppSubCommands {
-    /// The commands to deal with Candid IDL files and values.
-    #[clap(subcommand)]
-    Candid(candid::CandidSubCommands),
     /// Set of commands to manage the identities used by this program.
     #[clap(subcommand)]
     Identity(identity::IdentitySubCommands),
@@ -50,33 +42,17 @@ pub enum AppSubCommands {
     Replica(replica::ReplicaSubCommands),
     /// Create a new project.
     New(new::NewOpts),
-    /// Install the code for the given canister(s).
-    InstallCode(install_code::InstallOpts),
-    /// Build the wasm for the given canister(s).
-    Build(build::BuildOpts),
-    /// Build the wasm for the given canister(s).
-    CreateCanister(create_canister::CreateCanisterOpts),
-    /// Deploy the canisters of the current workspace.
-    Deploy(deploy::DeployOpts),
     /// Search for a given principal id.
     PrincipalGen(principal::PrincipalOpts),
-    /// Canister call
-    Call(call::CallSubCommands),
 }
 
 impl Command for AppSubCommands {
     fn exec(self, env: &mut Env) -> Result<()> {
         match self {
-            AppSubCommands::Candid(sub) => sub.exec(env),
             AppSubCommands::Identity(sub) => sub.exec(env),
             AppSubCommands::Replica(sub) => sub.exec(env),
             AppSubCommands::New(opts) => opts.exec(env),
-            AppSubCommands::InstallCode(opts) => opts.exec(env),
-            AppSubCommands::Build(opts) => opts.exec(env),
-            AppSubCommands::CreateCanister(opts) => opts.exec(env),
-            AppSubCommands::Deploy(opts) => opts.exec(env),
             AppSubCommands::PrincipalGen(opts) => opts.exec(env),
-            AppSubCommands::Call(opts) => opts.exec(env),
         }
     }
 }
